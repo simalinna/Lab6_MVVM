@@ -1,0 +1,202 @@
+﻿<Window x:Class="View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:local="clr-namespace:View" xmlns:system="clr-namespace:System;assembly=netstandard"
+        xmlns:ViewModel="clr-namespace:ViewModel;assembly=ViewModel"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="650" Width="1000" WindowStyle="ThreeDBorderWindow">
+
+
+    <Window.Resources>
+        <local:BordersTextBoxConverter x:Key="BordersTextBoxConverter" />
+        <local:RadioButtonConverter x:Key="RadioButtonConverter" />
+        <system:Boolean x:Key="True">True</system:Boolean>
+        <system:Boolean x:Key="False">False</system:Boolean>
+        <Style TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="Control.ToolTip"
+                        Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                            Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <Setter Property="Control.Foreground" Value="Red"/>
+                    <Setter Property="Control.Background" Value="#FFF1C2C2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <ObjectDataProvider x:Key="GetFValuesEnum" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ViewModel:FValuesEnum"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+
+
+    <Grid Background="#9bb3c2">
+
+
+        <Menu VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="14" Background="#FFD4D4D4">
+            <MenuItem Header="File" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <MenuItem Header="Save"
+                          Command="{Binding Save_Command}" CommandParameter="From MenuItem"/>
+            </MenuItem>
+            <MenuItem Header="Execute" Width="85">
+                <MenuItem Header="Data from Controls"
+                          Command="{Binding DataFromControls_Command}"
+                          CommandParameter="From MenuItem"/>
+                <MenuItem Header="Data from File" 
+                          Command="{Binding DataFromFile_Command}"
+                          CommandParameter="From MenuItem"/>
+            </MenuItem>
+        </Menu>
+
+
+        <Grid Margin="0,15,0,0">
+
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+
+            <Border Background="white" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="15" CornerRadius="20">
+
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30"/>
+                </Border.Effect>
+
+                <StackPanel Margin="10">
+                    <TextBlock Text="DataArray" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" />
+                    <Label Content="Введите границы отрезка: " Width="166" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="Borders_TextBox" TextWrapping="Wrap" Width="152" Height="24" HorizontalAlignment="Left">
+                        <TextBox.Text>
+                            <MultiBinding Converter="{StaticResource BordersTextBoxConverter}">
+                                <Binding Path="LeftBorder">
+                                    <Binding.ValidationRules>
+                                        <DataErrorValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                                <Binding Path="RightBorder"/>
+                            </MultiBinding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Введите число узлов сетки:" Width="173" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="NodesX_TextBox" TextWrapping="Wrap" Width="152" Height="24" HorizontalAlignment="Left"
+                        Text="{Binding Path=NodesX, ValidatesOnDataErrors=True}"/>
+                    <Label Content="Выберите тип сетки:" Width="150" Height="25" HorizontalAlignment="Left"/>
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Height="25">
+                        <RadioButton Name="UniformGrid_Button" Content="Равномерная" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120"
+                        IsChecked="{Binding Path=UniformGrid, Converter={StaticResource RadioButtonConverter}, ConverterParameter={StaticResource True}}"/>
+                        <RadioButton Name="NonUniformGrid_Buttton" Content="Неравномерная" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="120"
+                        IsChecked="{Binding Path=UniformGrid, Converter={StaticResource RadioButtonConverter}, ConverterParameter={StaticResource False}}"/>
+                    </StackPanel>
+                    <Label Content="Выберите функцию для вычисления значений компонент поля:" Height="25"/>
+                    <ComboBox Name="FValuesEnum_ComboBox" SelectedItem="{Binding Path=FValuesEnum}" 
+                              ItemsSource="{Binding Source={StaticResource GetFValuesEnum}}" Width="133" HorizontalAlignment="Left" Height="25"/>
+                </StackPanel>
+
+            </Border>
+
+
+            <Border Grid.Column="0" Grid.Row="2" Grid.RowSpan="2" Background="white" Margin="15" CornerRadius="20" >
+
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30"/>
+                </Border.Effect>
+
+                <StackPanel Margin="10">
+                    <TextBlock Text="SplineData" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" />
+                    <Label Content="Введите число узлов сглаживающего сплайна:" Width="289" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="NodesSpline_TextBox" TextWrapping="Wrap" Width="152" Height="25" HorizontalAlignment="Left"
+                         Text="{Binding Path=NodesSpline, ValidatesOnDataErrors=True}"/>
+                    <Label Content="Введите число узлов равномерной сетки:" Width="289" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="NewNodesSpline_TextBox" TextWrapping="Wrap" Width="152" Height="25" HorizontalAlignment="Left"
+                         Text="{Binding Path=NewNodesSpline, ValidatesOnDataErrors=True}"/>
+                    <Label Content="Введите норму невязки:" Width="347" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="MinRes_TextBox" TextWrapping="Wrap" Width="152" Height="25" HorizontalAlignment="Left"
+                         Text="{Binding Path=MinRes}"/>
+                    <Label Content="Введите максимальное число итераций:" Width="363" Height="25" HorizontalAlignment="Left"/>
+                    <TextBox Name="MaxIter_TextBox" TextWrapping="Wrap" Width="152" Height="25" HorizontalAlignment="Left"
+                         Text="{Binding Path=MaxIter}"/>
+                </StackPanel>
+
+            </Border>
+
+
+            <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="white" Margin="15" CornerRadius="20">
+
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30"/>
+                </Border.Effect>
+
+                <Grid Margin="10">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox Name="SplineData_ListBox" ItemsSource="{Binding DataSpline.SplineDataList}" Grid.Row="0"/>
+                    <ListBox Name="NewSplineData_ListBox" ItemsSource="{Binding DataSpline.SplineCoordinates}" Grid.Row="1"/>
+
+                </Grid>
+
+            </Border>
+
+
+            <Border Grid.Column="1" Grid.Row="3" Background="white" Margin="15" CornerRadius="20" >
+
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30"/>
+                </Border.Effect>
+
+                <Grid Margin="10">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Content="Data from Controls" Grid.Row="0" Margin="50 5"
+                            Command="{Binding DataFromControls_Command}" CommandParameter="From Button"/>
+                    <Button Content="Save" Grid.Row="1" Margin="50 5"
+                            Command="{Binding Save_Command}" CommandParameter="From Button"/>
+                    <Button Content="Data from File" Grid.Row="2" Margin="50 5"
+                            Command="{Binding DataFromFile_Command}" CommandParameter="From Button"/>
+
+                </Grid>
+
+            </Border>
+
+
+            <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" Background="white" Margin="15" CornerRadius="20">
+
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30"/>
+                </Border.Effect>
+
+                <Grid Name="OxyPlot" Margin="10">
+                    <oxy:PlotView Model="{Binding Path=DataPlot}"/>
+                </Grid>
+
+            </Border>
+
+
+
+        </Grid>
+
+    </Grid>
+
+</Window>
